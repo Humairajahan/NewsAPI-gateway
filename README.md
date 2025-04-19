@@ -6,6 +6,7 @@ This repository aims at building a gateway for the third-party API [NewsAPI](htt
 
 - [Setup and installation](#setup-and-installation)
 - [Docker Deployment](#-docker-deployment)
+- [Running Unittests](#running-unittests)
 - [Running Pylint in Docker Container](#running-pylint-in-docker-container)
 - [API Usage Examples](#api-usage-examples)
 - [Future scope](#future-scope)
@@ -27,6 +28,13 @@ This repository aims at building a gateway for the third-party API [NewsAPI](htt
 
 ```bash
 docker compose up --build -d
+```
+
+## Running Unittests
+
+```bash
+docker ps -a
+docker exec -it <CONTAINER ID> python3 -m unittest discover -s src/tests
 ```
 
 ## Running Pylint in Docker Container
