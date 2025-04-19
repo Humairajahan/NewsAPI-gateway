@@ -7,7 +7,7 @@ retrieves the associated user from the database, and injects the user into route
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, ExpiredSignatureError
+from jose import ExpiredSignatureError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..modules.auth.services.jwt import JwtService
@@ -55,16 +55,16 @@ async def get_user(
 
         return user
 
-    except JWTError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Could not validate credentials: {exc}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
     except ExpiredSignatureError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid token: expired: {exc}",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Could not validate credentials: {exc}",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
