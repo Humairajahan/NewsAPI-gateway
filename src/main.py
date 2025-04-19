@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.config.db import get_engine
 from src.common.base_entity import Base
 from src.modules.auth.routes import router as auth_router
+from src.modules.news.routes import router as news_router
 
 app = FastAPI(root_path="/api/v1")
 
@@ -29,3 +30,4 @@ async def on_startup():
 
 
 app.include_router(auth_router)
+app.include_router(news_router)

@@ -9,5 +9,5 @@ from .settings import (
     APP_SECRET,
     APP_EXPIRES_IN,
     REFRESH_TOKEN_EXPIRES_IN,
+    NEWSAPI_API_KEY,
 )
-
