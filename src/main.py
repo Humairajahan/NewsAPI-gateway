@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.config.db import get_engine
 from src.common.base_entity import Base
+from src.modules.auth.routes import router as auth_router
 
 app = FastAPI(root_path="/api/v1")
 
@@ -25,3 +26,6 @@ async def on_startup():
     """
     async with get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+
+app.include_router(auth_router)
