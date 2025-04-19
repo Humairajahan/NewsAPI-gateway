@@ -2,13 +2,13 @@
 Handles user authentication services including signup and login.
 """
 
-from fastapi import Response, HTTPException
+from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
 from .jwt import JwtService
-from ..schema import SignupDto, LoginDto
+from ..schema import SignupDto
 from ...user.entity import User
 
 jwt_service = JwtService()
@@ -69,4 +69,38 @@ class AuthService:
 
         return {
             "user": AuthService.unified_auth_response(user),
+        }
+
+    async def login(self, req: OAuth2PasswordRequestForm):
+        """
+        Handles login operation.
+        """
+        # EDGE CASE: USER WITH THIS EMAIL DOES NOT EXIST
+        user_exists = await self.db.execute(
+            select(User).where(
+                or_(
+                    User.email == req.username,
+                    User.username == req.username,
+                )
+            )
+        )
+        user = user_exists.scalar_one_or_none()
+        if not user:
+            raise HTTPException(
+                status_code=400, detail="User with this email does not exist"
+            )
+
+        # PASSWORD VALIDATION
+        password_valid = jwt_service.validate_password(req.password, user.password)
+        if not password_valid:
+            raise HTTPException(status_code=400, detail="Invalid user credentials")
+
+        access_token = jwt_service.generate_jwt_token(user)
+        refresh_token = jwt_service.generate_refresh_token(user)
+
+        return {
+            "user": AuthService.unified_auth_response(user),
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
         }
