@@ -3,6 +3,41 @@ services:
   fastapi:
     build: .
     restart: always
+    depends_on:
+      - postgres
     ports:
       - "3000:3000"
     command: "uvicorn src.main:app --host 0.0.0.0 --port 3000"
+
+  # Database: PostgreSQL
+  postgres:
+    image: postgres:latest
+    restart: on-failure
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=newsAPIgateway
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  # PostgreSQL management tool: pgAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=humairaazim45@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=password
+      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=True
+      - PGADMIN_CONFIG_CONSOLE_LOG_LEVEL=0 # 0: None (no logs)
+        # 1: Errors only
+        # 2: Warnings
+        # 3: Information
+        # 4: Debug
+        # 10: Trace (very verbose)
+      - PGADMIN_LISTEN_PORT=80
+    ports:
+      - "55:80"
+    logging:
+      driver: "none"
